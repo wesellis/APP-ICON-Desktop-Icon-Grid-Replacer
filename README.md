@@ -37,12 +37,15 @@ ICON scans your Windows or Linux desktop for shortcuts, searches for matching ar
 
 ### Windows Standalone (Easiest - No Python Required)
 
-1. **Download** `ICON.exe` from [Releases](https://github.com/wesellis/APP-ICON-Desktop-Icon-Grid-Replacer/releases)
-2. **Run** the executable (no installation needed)
-3. **Get API Key** from https://www.steamgriddb.com/profile/preferences/api
-4. **Follow** the setup wizard
+1. **Download** `ICON.exe` and `ICON_Launcher.bat` from [Releases](https://github.com/wesellis/APP-ICON-Desktop-Icon-Grid-Replacer/releases)
+2. **Double-click** `ICON_Launcher.bat` to launch the interactive menu
+3. **Choose option 1** to run setup wizard
+4. **Get API Key** from https://www.steamgriddb.com/profile/preferences/api and paste it
+5. **Use the menu** to replace icons, restore backups, or remove overlays
 
 The standalone .exe includes all dependencies and works on Windows 10+.
+
+**Note:** If you double-click `ICON.exe` directly, it will open and close immediately because it's a command-line tool. Use `ICON_Launcher.bat` for the interactive menu, or run from Command Prompt with options like `ICON.exe --help`.
 
 ### Python Installation (Cross-Platform)
 

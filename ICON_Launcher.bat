@@ -39,7 +39,11 @@ echo ===============================================
 echo    Setup Wizard
 echo ===============================================
 echo.
-python icon_replacer.py --setup
+if exist "dist\ICON.exe" (
+    dist\ICON.exe --setup
+) else (
+    python icon_replacer.py --setup
+)
 echo.
 echo Press any key to return to menu...
 pause >nul
@@ -54,7 +58,11 @@ echo.
 echo This will automatically replace ALL desktop icons
 echo without asking for confirmation on each one.
 echo.
-python icon_replacer.py --auto
+if exist "dist\ICON.exe" (
+    dist\ICON.exe --auto
+) else (
+    python icon_replacer.py --auto
+)
 echo.
 echo Press any key to return to menu...
 pause >nul
@@ -70,7 +78,11 @@ echo This will show you each icon and ask for confirmation
 echo before applying it. Type 'y' to apply, 'n' to skip,
 echo or 'skip all' to skip the rest.
 echo.
-python icon_replacer.py
+if exist "dist\ICON.exe" (
+    dist\ICON.exe
+) else (
+    python icon_replacer.py
+)
 echo.
 echo Press any key to return to menu...
 pause >nul
@@ -82,7 +94,11 @@ echo ===============================================
 echo    Desktop Items List
 echo ===============================================
 echo.
-python icon_replacer.py --list
+if exist "dist\ICON.exe" (
+    dist\ICON.exe --list
+) else (
+    python icon_replacer.py --list
+)
 echo.
 echo Press any key to return to menu...
 pause >nul
@@ -94,7 +110,11 @@ echo ===============================================
 echo    Remove UAC/Shortcut Overlays
 echo ===============================================
 echo.
-python icon_replacer.py --remove-overlays
+if exist "dist\ICON.exe" (
+    dist\ICON.exe --remove-overlays
+) else (
+    python icon_replacer.py --remove-overlays
+)
 echo.
 echo Press any key to return to menu...
 pause >nul
@@ -106,7 +126,11 @@ echo ===============================================
 echo    Restore Default Overlays
 echo ===============================================
 echo.
-python icon_replacer.py --restore-overlays
+if exist "dist\ICON.exe" (
+    dist\ICON.exe --restore-overlays
+) else (
+    python icon_replacer.py --restore-overlays
+)
 echo.
 echo Press any key to return to menu...
 pause >nul

@@ -39,12 +39,35 @@ def build_exe():
         "--console",  # Console application
         "--clean",
         f"--icon={ICON_FILE}",
-        "--add-data", f"{PROJECT_ROOT / 'src'};src",  # Include src folder
+        # Add all source files individually
+        "--add-data", f"{PROJECT_ROOT / 'src' / 'desktop_scanner.py'};src",
+        "--add-data", f"{PROJECT_ROOT / 'src' / 'game_matcher.py'};src",
+        "--add-data", f"{PROJECT_ROOT / 'src' / 'icon_cache.py'};src",
+        "--add-data", f"{PROJECT_ROOT / 'src' / 'icon_coordinator.py'};src",
+        "--add-data", f"{PROJECT_ROOT / 'src' / 'icon_downloader.py'};src",
+        "--add-data", f"{PROJECT_ROOT / 'src' / 'icon_updater.py'};src",
+        "--add-data", f"{PROJECT_ROOT / 'src' / 'overlay_remover.py'};src",
+        "--add-data", f"{PROJECT_ROOT / 'src' / 'platform_handler.py'};src",
+        "--add-data", f"{PROJECT_ROOT / 'src' / 'shortcut_updater.py'};src",
+        "--add-data", f"{PROJECT_ROOT / 'src' / 'steamgrid_api.py'};src",
+        # Hidden imports
         "--hidden-import", "win32com.client",
         "--hidden-import", "pythoncom",
         "--hidden-import", "aiohttp",
         "--hidden-import", "PIL",
+        "--hidden-import", "desktop_scanner",
+        "--hidden-import", "game_matcher",
+        "--hidden-import", "icon_cache",
+        "--hidden-import", "icon_coordinator",
+        "--hidden-import", "icon_downloader",
+        "--hidden-import", "icon_updater",
+        "--hidden-import", "overlay_remover",
+        "--hidden-import", "platform_handler",
+        "--hidden-import", "shortcut_updater",
+        "--hidden-import", "steamgrid_api",
         "--collect-all", "pywin32",
+        # Add paths for runtime
+        "--paths", str(PROJECT_ROOT / "src"),
         str(PROJECT_ROOT / "icon_replacer.py")
     ]
 
