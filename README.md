@@ -1,13 +1,14 @@
 # ICON - Desktop Icon Grid Replacer
 
-![Version](https://img.shields.io/badge/version-2.0.0-blue)
-![Python](https://img.shields.io/badge/python-3.8+-green)
-![License](https://img.shields.io/badge/license-MIT-orange)
-![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux-lightgrey)
-![Tests](https://img.shields.io/badge/tests-passing-brightgreen)
-![Coverage](https://img.shields.io/badge/coverage-80%25+-brightgreen)
-
 A tool to replace desktop icons with 1:1 grid artwork from SteamGridDB.
+
+[![Python](https://img.shields.io/badge/Python-3.8+-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
+[![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
+[![Platform](https://img.shields.io/badge/Platform-Windows%20|%20Linux-lightgrey?style=flat-square)](README.md)
+[![Tests](https://img.shields.io/badge/Tests-Passing-brightgreen?style=flat-square)](README.md)
+[![Coverage](https://img.shields.io/badge/Coverage-80%25+-brightgreen?style=flat-square)](README.md)
+[![Stars](https://img.shields.io/github/stars/wesellis/APP-ICON-Desktop-Icon-Grid-Replacer?style=flat-square)](https://github.com/wesellis/APP-ICON-Desktop-Icon-Grid-Replacer/stargazers)
+[![Last Commit](https://img.shields.io/github/last-commit/wesellis/APP-ICON-Desktop-Icon-Grid-Replacer?style=flat-square)](https://github.com/wesellis/APP-ICON-Desktop-Icon-Grid-Replacer/commits)
 
 ICON scans your Windows or Linux desktop for shortcuts, searches for matching artwork on SteamGridDB, and replaces the icons with 512x512 or 1024x1024 square grid images.
 
