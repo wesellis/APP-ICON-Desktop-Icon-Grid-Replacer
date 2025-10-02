@@ -1,0 +1,54 @@
+===============================================
+   ICON - Desktop Icon Grid Replacer v1.0
+         By Wesley Ellis
+===============================================
+
+HOW TO GET STARTED:
+===================
+
+1. Double-click "ICON_Launcher.bat" to open the interactive menu
+
+2. Choose option 1 (Setup) to configure your API key
+   - Get a free API key from: https://www.steamgriddb.com/profile/preferences/api
+   - Paste it when prompted
+
+3. After setup, you can:
+   - Option 2: Replace your desktop icons with beautiful artwork
+   - Option 3: List all items on your desktop
+   - Option 4: Remove UAC shields and shortcut arrows
+   - Option 5: Restore default overlays
+
+QUICK TIPS:
+===========
+
+- The app scans your desktop for shortcuts (.lnk files)
+- It searches SteamGridDB for matching game/app artwork
+- Downloads high-quality 512x512 or 1024x1024 icons
+- Automatically creates backups before making changes
+- You can choose to apply each icon or auto-apply all
+
+OVERLAY REMOVAL:
+================
+
+Option 4 will remove:
+  - UAC shield overlays (those little shields on admin shortcuts)
+  - Shortcut arrows (the little arrows on all shortcuts)
+
+This creates a blank.ico file in your Documents folder.
+DO NOT DELETE THIS FILE or the overlays will come back!
+
+You can restore the overlays anytime with Option 5.
+
+TROUBLESHOOTING:
+================
+
+If nothing happens when you run the app:
+  - Make sure you've run Setup (Option 1) first
+  - Check that you have Python installed
+  - Run "pip install -r requirements.txt" to install dependencies
+
+Need help? Check the README.md file for full documentation.
+
+===============================================
+Double-click ICON_Launcher.bat to get started!
+===============================================
