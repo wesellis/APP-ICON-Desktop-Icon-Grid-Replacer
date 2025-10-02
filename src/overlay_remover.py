@@ -3,12 +3,12 @@ Overlay Remover
 Remove UAC shields and shortcut arrows from desktop icons
 """
 
-import subprocess
-from pathlib import Path
 import logging
+import subprocess
 import tempfile
+from pathlib import Path
 
-logger = logging.getLogger('ICON.OverlayRemover')
+logger = logging.getLogger("ICON.OverlayRemover")
 
 
 class OverlayRemover:
@@ -28,7 +28,9 @@ class OverlayRemover:
             # Step 2: Restart Explorer
             print("\n  Restarting Windows Explorer to apply changes...")
             if not self._restart_explorer():
-                logger.warning("Explorer restart may have failed - you may need to restart manually")
+                logger.warning(
+                    "Explorer restart may have failed - you may need to restart manually"
+                )
 
             print("  ✅ Overlays removed successfully!")
 
@@ -55,7 +57,7 @@ class OverlayRemover:
 """
 
             # Write to temp file
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.reg', delete=False) as f:
+            with tempfile.NamedTemporaryFile(mode="w", suffix=".reg", delete=False) as f:
                 f.write(reg_content)
                 temp_reg_file = f.name
 
@@ -65,10 +67,13 @@ class OverlayRemover:
             # Import registry file with admin rights
             print("  ⚠️  Requesting administrator privileges to modify registry...")
             result = subprocess.run(
-                ['powershell', '-Command',
-                 f'Start-Process regedit -ArgumentList "/s {temp_reg_file}" -Verb RunAs -Wait'],
+                [
+                    "powershell",
+                    "-Command",
+                    f'Start-Process regedit -ArgumentList "/s {temp_reg_file}" -Verb RunAs -Wait',
+                ],
                 capture_output=True,
-                text=True
+                text=True,
             )
 
             # Clean up temp file
@@ -94,20 +99,19 @@ class OverlayRemover:
         try:
             # Kill Explorer
             subprocess.run(
-                ['powershell', '-Command', 'Stop-Process -Name explorer -Force'],
+                ["powershell", "-Command", "Stop-Process -Name explorer -Force"],
                 capture_output=True,
-                timeout=5
+                timeout=5,
             )
 
             # Wait a moment
             import time
+
             time.sleep(2)
 
             # Start Explorer
             subprocess.run(
-                ['powershell', '-Command', 'Start-Process explorer'],
-                capture_output=True,
-                timeout=5
+                ["powershell", "-Command", "Start-Process explorer"], capture_output=True, timeout=5
             )
 
             logger.info("Explorer restarted")
@@ -133,7 +137,7 @@ class OverlayRemover:
 """
 
             # Write to temp file
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.reg', delete=False) as f:
+            with tempfile.NamedTemporaryFile(mode="w", suffix=".reg", delete=False) as f:
                 f.write(reg_content)
                 temp_reg_file = f.name
 
@@ -142,10 +146,13 @@ class OverlayRemover:
             # Import registry file with admin rights
             print("  ⚠️  Requesting administrator privileges to modify registry...")
             result = subprocess.run(
-                ['powershell', '-Command',
-                 f'Start-Process regedit -ArgumentList "/s {temp_reg_file}" -Verb RunAs -Wait'],
+                [
+                    "powershell",
+                    "-Command",
+                    f'Start-Process regedit -ArgumentList "/s {temp_reg_file}" -Verb RunAs -Wait',
+                ],
                 capture_output=True,
-                text=True
+                text=True,
             )
 
             # Clean up temp file
@@ -192,5 +199,5 @@ def test_overlay_remover():
         print("✗ Restoration test failed")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     test_overlay_remover()

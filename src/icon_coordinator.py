@@ -3,15 +3,16 @@ Icon Coordinator
 Orchestrates icon replacement workflow using modular components
 """
 
-import re
 import logging
+import re
 from pathlib import Path
-from typing import List, Dict
+from typing import Dict, List
+
+from icon_cache import IconCacheManager
 from icon_downloader import IconDownloader
 from shortcut_updater import ShortcutUpdater
-from icon_cache import IconCacheManager
 
-logger = logging.getLogger('ICON.Coordinator')
+logger = logging.getLogger("ICON.Coordinator")
 
 
 class IconCoordinator:
@@ -29,16 +30,13 @@ class IconCoordinator:
         self.size = size
 
         # Initialize components
-        icons_dir = Path.home() / '.icon_replacer' / 'icons'
+        icons_dir = Path.home() / ".icon_replacer" / "icons"
         self.downloader = IconDownloader(icons_dir, size)
         self.updater = ShortcutUpdater()
         self.cache_manager = IconCacheManager()
 
     async def process_items(
-        self,
-        items: List[Dict],
-        auto_apply: bool = False,
-        backup: bool = True
+        self, items: List[Dict], auto_apply: bool = False, backup: bool = True
     ) -> Dict:
         """
         Process desktop items and replace icons
@@ -51,12 +49,7 @@ class IconCoordinator:
         Returns:
             Results dict with success, failed, skipped counts
         """
-        results = {
-            'success': 0,
-            'failed': 0,
-            'skipped': 0,
-            'backup_path': None
-        }
+        results = {"success": 0, "failed": 0, "skipped": 0, "backup_path": None}
 
         # Clear icon cache BEFORE processing
         print("\n[*] Clearing icon cache before processing...")
@@ -64,18 +57,18 @@ class IconCoordinator:
 
         # Create backup if requested
         if backup:
-            results['backup_path'] = self.updater.create_backup(items)
+            results["backup_path"] = self.updater.create_backup(items)
 
         # Process each item
         for i, item in enumerate(items, 1):
             print(f"\n[{i}/{len(items)}] {item['name']}")
 
             # Search for multiple matches to let user choose
-            matches = await self.api.search_game_by_name(item['clean_name'], return_all=True)
+            matches = await self.api.search_game_by_name(item["clean_name"], return_all=True)
 
             if not matches:
                 print(f"  ⚠️  No matches found on SteamGridDB")
-                results['skipped'] += 1
+                results["skipped"] += 1
                 continue
 
             # Handle game selection
@@ -86,39 +79,41 @@ class IconCoordinator:
             print(f"  Using: {selected_game.get('name')} (ID: {selected_game.get('id')})")
 
             # Get icon for selected game
-            icon_data = await self._get_icon_for_game(selected_game.get('id'))
+            icon_data = await self._get_icon_for_game(selected_game.get("id"))
             if not icon_data:
                 print(f"  ⚠️  No icons found for this game")
-                results['skipped'] += 1
+                results["skipped"] += 1
                 continue
 
             # Show preview info
             print(f"  ✓ Found: {icon_data.get('url', 'N/A')}")
-            print(f"    Score: {icon_data.get('score', 0)}, Votes: {icon_data.get('votes', 0)} (Oldest icon)")
+            print(
+                f"    Score: {icon_data.get('score', 0)}, Votes: {icon_data.get('votes', 0)} (Oldest icon)"
+            )
 
             # Confirm if not auto
             if not auto_apply:
                 response = input(f"  Apply this icon? (y/n/skip all) [y]: ").strip().lower()
-                if response == 'skip all':
+                if response == "skip all":
                     print("  Skipping remaining items...")
-                    results['skipped'] += len(items) - i + 1
+                    results["skipped"] += len(items) - i + 1
                     break
-                elif response == 'n':
+                elif response == "n":
                     print("  Skipped")
-                    results['skipped'] += 1
+                    results["skipped"] += 1
                     continue
 
             # Download and apply icon
-            success = await self._apply_icon(item, icon_data, selected_game.get('name'))
+            success = await self._apply_icon(item, icon_data, selected_game.get("name"))
             if success:
                 print(f"  ✅ Icon updated!")
-                results['success'] += 1
+                results["success"] += 1
             else:
                 print(f"  ❌ Failed to update icon")
-                results['failed'] += 1
+                results["failed"] += 1
 
         # Refresh cache if any successful updates
-        if results['success'] > 0:
+        if results["success"] > 0:
             print("\n[*] Refreshing icon cache...")
             self.cache_manager.refresh_cache_and_restart()
 
@@ -131,23 +126,29 @@ class IconCoordinator:
 
         # Extract core words from shortcut name
         core_words = re.sub(
-            r'\b(19|20)\d{2}\b|\(.*?\)|\bremake\b|\bremastered\b|\bedition\b|\bdeluxe\b|\bgoty\b|\bcollectors?\b',
-            '', item['clean_name'], flags=re.IGNORECASE
+            r"\b(19|20)\d{2}\b|\(.*?\)|\bremake\b|\bremastered\b|\bedition\b|\bdeluxe\b|\bgoty\b|\bcollectors?\b",
+            "",
+            item["clean_name"],
+            flags=re.IGNORECASE,
         ).strip()
-        first_words = ' '.join(core_words.split()[:min(3, len(core_words.split()))])
+        first_words = " ".join(core_words.split()[: min(3, len(core_words.split()))])
 
         # Find games matching core title
         potential_versions = []
         for game, score in matches:
-            game_name = game.get('name', '')
+            game_name = game.get("name", "")
             game_core = re.sub(
-                r'\b(19|20)\d{2}\b|\(.*?\)|\bremake\b|\bremastered\b|\bedition\b|\bdeluxe\b|\bgoty\b|\bcollectors?\b',
-                '', game_name, flags=re.IGNORECASE
+                r"\b(19|20)\d{2}\b|\(.*?\)|\bremake\b|\bremastered\b|\bedition\b|\bdeluxe\b|\bgoty\b|\bcollectors?\b",
+                "",
+                game_name,
+                flags=re.IGNORECASE,
             ).strip()
 
-            if (core_words.lower() in game_core.lower() or
-                game_core.lower() in core_words.lower() or
-                first_words.lower() in game_core.lower()):
+            if (
+                core_words.lower() in game_core.lower()
+                or game_core.lower() in core_words.lower()
+                or first_words.lower() in game_core.lower()
+            ):
                 potential_versions.append((game, score))
 
         # Also check for similar high scores
@@ -155,7 +156,11 @@ class IconCoordinator:
         similar_matches = [m for m in matches if abs(m[1] - top_score) < 200]
 
         # Use the larger set
-        candidates = potential_versions if len(potential_versions) > len(similar_matches) else similar_matches
+        candidates = (
+            potential_versions
+            if len(potential_versions) > len(similar_matches)
+            else similar_matches
+        )
 
         # Check for multiple years
         has_multiple_years = self._has_multiple_years(candidates)
@@ -169,8 +174,8 @@ class IconCoordinator:
         """Check if candidates have multiple different years"""
         years_found = set()
         for game, _ in candidates:
-            game_name = game.get('name', '')
-            year_match = re.findall(r'\b(19|20)\d{2}\b', game_name)
+            game_name = game.get("name", "")
+            year_match = re.findall(r"\b(19|20)\d{2}\b", game_name)
             if year_match:
                 years_found.add(year_match[0])
         return len(years_found) > 1
@@ -183,10 +188,12 @@ class IconCoordinator:
 
         while True:
             try:
-                choice = input(f"  Select game (1-{len(candidates)}) or 's' to skip: ").strip().lower()
-                if choice == 's':
+                choice = (
+                    input(f"  Select game (1-{len(candidates)}) or 's' to skip: ").strip().lower()
+                )
+                if choice == "s":
                     print("  Skipped")
-                    results['skipped'] += 1
+                    results["skipped"] += 1
                     return None
                 choice_num = int(choice)
                 if 1 <= choice_num <= len(candidates):
@@ -216,9 +223,7 @@ class IconCoordinator:
         """Download icon and apply to shortcut"""
         # Download and convert
         icon_path = await self.downloader.download_and_convert(
-            self.api,
-            icon_data.get('url'),
-            game_name
+            self.api, icon_data.get("url"), game_name
         )
 
         if not icon_path:

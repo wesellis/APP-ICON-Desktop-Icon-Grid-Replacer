@@ -1,8 +1,10 @@
 """Tests for icon updater"""
 
-import pytest
 from pathlib import Path
-from unittest.mock import Mock, AsyncMock, patch, MagicMock
+from unittest.mock import AsyncMock, MagicMock, Mock, patch
+
+import pytest
+
 from icon_updater import IconUpdater
 
 
@@ -29,20 +31,20 @@ class TestIconUpdater:
         # Create a fake PNG file
         temp_png = temp_dir / "test_temp.png"
         from PIL import Image
-        img = Image.new('RGB', (512, 512), color='red')
+
+        img = Image.new("RGB", (512, 512), color="red")
         img.save(temp_png)
 
-        with patch.object(updater.api, 'download_icon', return_value=True):
-            with patch('icon_updater.Path.unlink'):
+        with patch.object(updater.api, "download_icon", return_value=True):
+            with patch("icon_updater.Path.unlink"):
                 # Mock the temp file to exist
-                with patch('icon_updater.Image.open', return_value=img):
+                with patch("icon_updater.Image.open", return_value=img):
                     result = await updater._download_and_convert_icon(
-                        "https://example.com/icon.png",
-                        "TestGame"
+                        "https://example.com/icon.png", "TestGame"
                     )
 
         assert result is not None
-        assert result.suffix == '.ico'
+        assert result.suffix == ".ico"
 
     @pytest.mark.asyncio
     async def test_create_backup(self, temp_dir, sample_desktop_item):
@@ -52,24 +54,25 @@ class TestIconUpdater:
 
         items = [sample_desktop_item]
 
-        with patch('icon_updater.Path.home', return_value=temp_dir):
+        with patch("icon_updater.Path.home", return_value=temp_dir):
             backup_path = updater._create_backup(items)
 
         assert backup_path is not None
         assert backup_path.exists()
-        assert backup_path.suffix == '.json'
+        assert backup_path.suffix == ".json"
 
         # Verify backup content
         import json
+
         with open(backup_path) as f:
             backup_data = json.load(f)
 
-        assert 'timestamp' in backup_data
-        assert 'items' in backup_data
-        assert len(backup_data['items']) == 1
+        assert "timestamp" in backup_data
+        assert "items" in backup_data
+        assert len(backup_data["items"]) == 1
 
-    @patch('icon_updater.win32com.client.Dispatch')
-    @patch('icon_updater.pythoncom')
+    @patch("icon_updater.win32com.client.Dispatch")
+    @patch("icon_updater.pythoncom")
     def test_update_lnk_icon(self, mock_pythoncom, mock_dispatch, sample_desktop_item):
         """Test updating .lnk shortcut icon"""
         mock_api = Mock()
@@ -95,12 +98,8 @@ class TestIconUpdater:
 
         updater = IconUpdater(mock_api)
 
-        results = await updater.process_items(
-            [sample_desktop_item],
-            auto_apply=True,
-            backup=False
-        )
+        results = await updater.process_items([sample_desktop_item], auto_apply=True, backup=False)
 
-        assert results['skipped'] == 1
-        assert results['success'] == 0
-        assert results['failed'] == 0
+        assert results["skipped"] == 1
+        assert results["success"] == 0
+        assert results["failed"] == 0

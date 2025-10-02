@@ -3,11 +3,11 @@ Game Matching Algorithm
 Smart matching of shortcut names to SteamGridDB game entries with scoring
 """
 
-import re
 import logging
+import re
 from typing import Dict, List, Tuple
 
-logger = logging.getLogger('ICON.Matcher')
+logger = logging.getLogger("ICON.Matcher")
 
 
 class GameMatcher:
@@ -32,7 +32,7 @@ class GameMatcher:
 
         # First: Look for exact match (case-insensitive)
         for game in games:
-            game_name = game.get('name', '').lower().strip()
+            game_name = game.get("name", "").lower().strip()
             if game_name == query_lower:
                 logger.debug(f"Exact match found: {game.get('name')}")
                 return game
@@ -64,7 +64,7 @@ class GameMatcher:
 
         # First: Look for exact match (case-insensitive)
         for game in games:
-            game_name = game.get('name', '').lower().strip()
+            game_name = game.get("name", "").lower().strip()
             if game_name == query_lower:
                 logger.debug(f"Exact match found: {game.get('name')}")
                 return [(game, 1000.0)]  # Only return exact match if found
@@ -92,13 +92,13 @@ class GameMatcher:
         query_lower = query.lower().strip()
 
         # Extract numbers and words from query
-        query_numbers = set(re.findall(r'\d+', query_lower))
+        query_numbers = set(re.findall(r"\d+", query_lower))
         query_words = set(query_lower.split())
 
         scored_games = []
 
         for game in games:
-            game_name = game.get('name', '').lower().strip()
+            game_name = game.get("name", "").lower().strip()
             score = self._calculate_score(query_lower, query_numbers, query_words, game_name)
 
             if score > 0:  # Only include games with positive score
@@ -107,11 +107,7 @@ class GameMatcher:
         return scored_games
 
     def _calculate_score(
-        self,
-        query_lower: str,
-        query_numbers: set,
-        query_words: set,
-        game_name: str
+        self, query_lower: str, query_numbers: set, query_words: set, game_name: str
     ) -> float:
         """
         Calculate match score for a single game
@@ -135,7 +131,7 @@ class GameMatcher:
         Returns:
             Score (higher is better, 0 or negative means poor match)
         """
-        game_numbers = set(re.findall(r'\d+', game_name))
+        game_numbers = set(re.findall(r"\d+", game_name))
         game_words = set(game_name.split())
 
         # CRITICAL: If query has numbers, the game MUST have those exact numbers

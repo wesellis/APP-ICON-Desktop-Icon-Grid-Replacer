@@ -4,13 +4,14 @@ Handles downloading icons from URLs and converting them to ICO/PNG format
 """
 
 import logging
-import subprocess
 import shutil
+import subprocess
 from pathlib import Path
 from typing import Optional
+
 from PIL import Image
 
-logger = logging.getLogger('ICON.Downloader')
+logger = logging.getLogger("ICON.Downloader")
 
 
 class IconDownloader:
@@ -31,12 +32,7 @@ class IconDownloader:
         # Check if ImageMagick is available for better ICO support
         self.has_imagemagick = self._check_imagemagick()
 
-    async def download_and_convert(
-        self,
-        api,
-        url: str,
-        name: str
-    ) -> Optional[Path]:
+    async def download_and_convert(self, api, url: str, name: str) -> Optional[Path]:
         """
         Download icon from URL and convert to ICO format
 
@@ -50,7 +46,7 @@ class IconDownloader:
         """
         try:
             # Create safe filename
-            safe_name = "".join(c for c in name if c.isalnum() or c in (' ', '-', '_')).strip()
+            safe_name = "".join(c for c in name if c.isalnum() or c in (" ", "-", "_")).strip()
             temp_download = self.icons_dir / f"{safe_name}_temp_download"
             temp_png = self.icons_dir / f"{safe_name}_temp.png"
             ico_path = self.icons_dir / f"{safe_name}.ico"
@@ -79,7 +75,7 @@ class IconDownloader:
             logger.error(f"Error downloading/converting icon: {e}")
             # Clean up on error
             try:
-                safe_name = "".join(c for c in name if c.isalnum() or c in (' ', '-', '_')).strip()
+                safe_name = "".join(c for c in name if c.isalnum() or c in (" ", "-", "_")).strip()
                 temp_download = self.icons_dir / f"{safe_name}_temp_download"
                 temp_png = self.icons_dir / f"{safe_name}_temp.png"
                 if temp_download.exists():
@@ -91,11 +87,7 @@ class IconDownloader:
             return None
 
     def _convert_to_ico(
-        self,
-        temp_download: Path,
-        temp_png: Path,
-        ico_path: Path,
-        safe_name: str
+        self, temp_download: Path, temp_png: Path, ico_path: Path, safe_name: str
     ) -> Optional[Path]:
         """
         Convert downloaded image to ICO format
@@ -116,8 +108,8 @@ class IconDownloader:
             # Open and process image
             with Image.open(temp_download) as img:
                 # Convert to RGBA immediately (fixes JPEG issues)
-                if img.mode != 'RGBA':
-                    img = img.convert('RGBA')
+                if img.mode != "RGBA":
+                    img = img.convert("RGBA")
 
                 # Ensure square
                 if img.size[0] != img.size[1]:
@@ -132,11 +124,11 @@ class IconDownloader:
                     img = img.resize((self.target_size, self.target_size), Image.Resampling.LANCZOS)
 
                 # Save as high-quality PNG first (important for JPEG sources)
-                img.save(temp_png, format='PNG', optimize=False, compress_level=0)
+                img.save(temp_png, format="PNG", optimize=False, compress_level=0)
 
             # Save standalone PNG at full resolution (always)
             with Image.open(temp_png) as png_img:
-                png_img.save(self.icons_dir / f"{safe_name}.png", format='PNG', optimize=True)
+                png_img.save(self.icons_dir / f"{safe_name}.png", format="PNG", optimize=True)
 
             # Convert PNG to ICO - use ImageMagick if available for large ICO support
             if self.has_imagemagick:
@@ -149,7 +141,7 @@ class IconDownloader:
             # Fallback to PIL (will cap at 256x256)
             with Image.open(temp_png) as png_img:
                 sizes = self._get_ico_sizes()
-                png_img.save(ico_path, format='ICO', sizes=sizes, bitmap_format='png')
+                png_img.save(ico_path, format="ICO", sizes=sizes, bitmap_format="png")
                 logger.info(f"Saved ICO with PIL (capped at 256x256): {ico_path}")
 
             return ico_path
@@ -166,24 +158,32 @@ class IconDownloader:
             List of (width, height) tuples
         """
         if self.target_size >= 1024:
-            sizes = [(1024, 1024), (512, 512), (256, 256), (128, 128),
-                     (64, 64), (48, 48), (32, 32), (16, 16)]
+            sizes = [
+                (1024, 1024),
+                (512, 512),
+                (256, 256),
+                (128, 128),
+                (64, 64),
+                (48, 48),
+                (32, 32),
+                (16, 16),
+            ]
         elif self.target_size >= 512:
-            sizes = [(512, 512), (256, 256), (128, 128), (64, 64),
-                     (48, 48), (32, 32), (16, 16)]
+            sizes = [(512, 512), (256, 256), (128, 128), (64, 64), (48, 48), (32, 32), (16, 16)]
         else:
-            sizes = [(256, 256), (128, 128), (64, 64), (48, 48),
-                     (32, 32), (16, 16)]
+            sizes = [(256, 256), (128, 128), (64, 64), (48, 48), (32, 32), (16, 16)]
 
         return sizes
 
     def _check_imagemagick(self) -> bool:
         """Check if ImageMagick is available"""
         try:
-            result = subprocess.run(['magick', '--version'], capture_output=True, timeout=5)
+            result = subprocess.run(["magick", "--version"], capture_output=True, timeout=5)
             available = result.returncode == 0
             if available:
-                logger.info("ImageMagick detected - will create 512x512 ICO files (2x larger than PIL)")
+                logger.info(
+                    "ImageMagick detected - will create 512x512 ICO files (2x larger than PIL)"
+                )
             return available
         except (FileNotFoundError, subprocess.TimeoutExpired):
             logger.debug("ImageMagick not found - using PIL (256x256 max)")
@@ -207,10 +207,11 @@ class IconDownloader:
             # ImageMagick can create ICO files up to 512x512
             # (1024x1024 fails with InvalidDimensions error)
             cmd = [
-                'magick',
+                "magick",
                 str(png_path),
-                '-define', 'icon:auto-resize=512,256,128,64,48,32,16',
-                str(ico_path)
+                "-define",
+                "icon:auto-resize=512,256,128,64,48,32,16",
+                str(ico_path),
             ]
 
             result = subprocess.run(cmd, capture_output=True, timeout=30)

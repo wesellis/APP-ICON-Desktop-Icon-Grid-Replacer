@@ -3,14 +3,16 @@ SteamGridDB API Integration
 Search and download high-quality game icons from SteamGridDB
 """
 
-import aiohttp
 import asyncio
+import logging
 from pathlib import Path
 from typing import Dict, List, Optional
-import logging
+
+import aiohttp
+
 from game_matcher import GameMatcher
 
-logger = logging.getLogger('ICON.API')
+logger = logging.getLogger("ICON.API")
 
 
 class SteamGridAPI:
@@ -21,8 +23,8 @@ class SteamGridAPI:
         self.base_url = "https://www.steamgriddb.com/api/v2"
         self.headers = {
             "Authorization": f"Bearer {api_key}",
-            'User-Agent': 'ICON-DesktopReplacer/1.0',
-            'Accept': 'application/json'
+            "User-Agent": "ICON-DesktopReplacer/1.0",
+            "Accept": "application/json",
         }
         self.session: Optional[aiohttp.ClientSession] = None
 
@@ -46,15 +48,9 @@ class SteamGridAPI:
         """Ensure aiohttp session exists"""
         if self.session is None or self.session.closed:
             timeout = aiohttp.ClientTimeout(total=30, connect=10)
-            connector = aiohttp.TCPConnector(
-                limit=50,
-                limit_per_host=20,
-                ttl_dns_cache=300
-            )
+            connector = aiohttp.TCPConnector(limit=50, limit_per_host=20, ttl_dns_cache=300)
             self.session = aiohttp.ClientSession(
-                headers=self.headers,
-                timeout=timeout,
-                connector=connector
+                headers=self.headers, timeout=timeout, connector=connector
             )
 
     async def search_game_by_name(self, name: str, return_all: bool = False):
@@ -81,7 +77,8 @@ class SteamGridAPI:
 
         # Add ASCII-normalized version (ü→u, é→e, etc.) for games like "Brütal Legend"
         import unicodedata
-        ascii_name = unicodedata.normalize('NFKD', name).encode('ASCII', 'ignore').decode('ASCII')
+
+        ascii_name = unicodedata.normalize("NFKD", name).encode("ASCII", "ignore").decode("ASCII")
         if ascii_name != name:
             search_queries.append(ascii_name)
 
@@ -103,9 +100,9 @@ class SteamGridAPI:
                         query_games = data.get("data", [])
                         if query_games:
                             # Add games, avoiding duplicates
-                            game_ids = {g.get('id') for g in games}
+                            game_ids = {g.get("id") for g in games}
                             for game in query_games:
-                                if game.get('id') not in game_ids:
+                                if game.get("id") not in game_ids:
                                     games.append(game)
                             if query != name:
                                 logger.info(f"Found additional results with variation: '{query}'")
@@ -135,7 +132,7 @@ class SteamGridAPI:
     async def get_icons(self, game_id: int, dimensions: str = "1024x1024") -> List[Dict]:
         """Get icons for a specific game"""
         # Check cache - include sort in key to bust old cache
-        cache_key = (game_id, dimensions, 'oldest')
+        cache_key = (game_id, dimensions, "oldest")
         if cache_key in self._icon_cache:
             logger.debug(f"Cache hit for game ID {game_id} icons")
             return self._icon_cache[cache_key]
@@ -145,13 +142,13 @@ class SteamGridAPI:
         try:
             url = f"{self.base_url}/icons/game/{game_id}"
             params = {
-                'sort_by': 'created',    # Sort by upload date
-                'sort_order': 'asc'      # Oldest first
+                "sort_by": "created",  # Sort by upload date
+                "sort_order": "asc",  # Oldest first
             }
 
             # Add dimension filter if specified
             if dimensions:
-                params['dimensions'] = dimensions
+                params["dimensions"] = dimensions
 
             async with self.session.get(url, params=params) as response:
                 if response.status == 200:
@@ -178,7 +175,7 @@ class SteamGridAPI:
     async def get_grids(self, game_id: int, dimensions: str = "1024x1024") -> List[Dict]:
         """Get grid artwork for a specific game (square 1:1 ratio)"""
         # Check cache - include sort in key to bust old cache
-        cache_key = (game_id, f"grid_{dimensions}", 'oldest')
+        cache_key = (game_id, f"grid_{dimensions}", "oldest")
         if cache_key in self._icon_cache:
             logger.debug(f"Cache hit for game ID {game_id} grids")
             return self._icon_cache[cache_key]
@@ -188,13 +185,13 @@ class SteamGridAPI:
         try:
             url = f"{self.base_url}/grids/game/{game_id}"
             params = {
-                'sort_by': 'created',    # Sort by upload date
-                'sort_order': 'asc'      # Oldest first
+                "sort_by": "created",  # Sort by upload date
+                "sort_order": "asc",  # Oldest first
             }
 
             # Add dimension filter if specified
             if dimensions:
-                params['dimensions'] = dimensions
+                params["dimensions"] = dimensions
 
             async with self.session.get(url, params=params) as response:
                 if response.status == 200:
@@ -224,11 +221,13 @@ class SteamGridAPI:
             # CDN URLs don't need authentication - create a new session without auth headers
             timeout = aiohttp.ClientTimeout(total=60, connect=10)
             async with aiohttp.ClientSession(timeout=timeout) as cdn_session:
-                async with cdn_session.get(url, headers={'User-Agent': 'ICON-DesktopReplacer/1.0'}) as response:
+                async with cdn_session.get(
+                    url, headers={"User-Agent": "ICON-DesktopReplacer/1.0"}
+                ) as response:
                     if response.status == 200:
                         save_path.parent.mkdir(parents=True, exist_ok=True)
 
-                        with open(save_path, 'wb') as f:
+                        with open(save_path, "wb") as f:
                             async for chunk in response.content.iter_chunked(8192):
                                 f.write(chunk)
 
@@ -249,7 +248,7 @@ class SteamGridAPI:
         if not game:
             return None
 
-        game_id = game.get('id')
+        game_id = game.get("id")
         if not game_id:
             return None
 

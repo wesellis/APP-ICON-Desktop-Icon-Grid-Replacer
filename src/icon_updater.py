@@ -8,11 +8,12 @@ to the new modular components for actual implementation.
 
 import logging
 from pathlib import Path
-from typing import List, Dict, Optional
+from typing import Dict, List, Optional
+
 from icon_coordinator import IconCoordinator
 from shortcut_updater import ShortcutUpdater
 
-logger = logging.getLogger('ICON.Updater')
+logger = logging.getLogger("ICON.Updater")
 
 
 class IconUpdater:
@@ -35,10 +36,7 @@ class IconUpdater:
         self._shortcut_updater = ShortcutUpdater()
 
     async def process_items(
-        self,
-        items: List[Dict],
-        auto_apply: bool = False,
-        backup: bool = True
+        self, items: List[Dict], auto_apply: bool = False, backup: bool = True
     ) -> Dict:
         """
         Process desktop items and replace icons

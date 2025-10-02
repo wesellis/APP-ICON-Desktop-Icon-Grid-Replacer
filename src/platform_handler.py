@@ -3,13 +3,13 @@ Platform-specific handlers for Windows and Linux
 Provides abstraction layer for desktop shortcut operations
 """
 
-import sys
+import configparser
 import logging
+import sys
 from pathlib import Path
 from typing import Dict, Optional
-import configparser
 
-logger = logging.getLogger('ICON.Platform')
+logger = logging.getLogger("ICON.Platform")
 
 
 class PlatformHandler:
@@ -18,9 +18,9 @@ class PlatformHandler:
     @staticmethod
     def get_handler():
         """Get the appropriate handler for the current platform"""
-        if sys.platform == 'win32':
+        if sys.platform == "win32":
             return WindowsHandler()
-        elif sys.platform.startswith('linux'):
+        elif sys.platform.startswith("linux"):
             return LinuxHandler()
         else:
             raise NotImplementedError(f"Platform {sys.platform} is not supported")
@@ -31,8 +31,9 @@ class WindowsHandler:
 
     def __init__(self):
         try:
-            import win32com.client
             import pythoncom
+            import win32com.client
+
             self.win32com = win32com
             self.pythoncom = pythoncom
         except ImportError:
@@ -51,15 +52,17 @@ class WindowsHandler:
                 shortcut = shell.CreateShortCut(str(shortcut_path))
 
                 # Get target and icon information
-                item['target'] = shortcut.Targetpath
-                item['icon_path'] = shortcut.IconLocation.split(',')[0] if shortcut.IconLocation else None
+                item["target"] = shortcut.Targetpath
+                item["icon_path"] = (
+                    shortcut.IconLocation.split(",")[0] if shortcut.IconLocation else None
+                )
 
                 # Get icon index if specified
-                if shortcut.IconLocation and ',' in shortcut.IconLocation:
+                if shortcut.IconLocation and "," in shortcut.IconLocation:
                     try:
-                        item['icon_index'] = int(shortcut.IconLocation.split(',')[1])
+                        item["icon_index"] = int(shortcut.IconLocation.split(",")[1])
                     except ValueError:
-                        item['icon_index'] = 0
+                        item["icon_index"] = 0
 
                 logger.debug(f"Shortcut target: {item['target']}")
                 logger.debug(f"Shortcut icon: {item['icon_path']} (index: {item['icon_index']})")
@@ -107,17 +110,25 @@ class WindowsHandler:
             except Exception as e:
                 # Check if it's an access denied error (error code -2147024891)
                 error_str = str(e)
-                is_access_denied = '-2147024891' in error_str or 'Unable to save shortcut' in error_str
+                is_access_denied = (
+                    "-2147024891" in error_str or "Unable to save shortcut" in error_str
+                )
 
                 if is_access_denied and attempt < max_retries - 1:
-                    logger.warning(f"Access denied on attempt {attempt + 1}/{max_retries}, retrying after {retry_delay}s delay...")
+                    logger.warning(
+                        f"Access denied on attempt {attempt + 1}/{max_retries}, retrying after {retry_delay}s delay..."
+                    )
                     time.sleep(retry_delay)
                     retry_delay *= 2  # Exponential backoff
                     continue
                 else:
-                    logger.error(f"Error updating Windows shortcut icon after {attempt + 1} attempts: {e}")
+                    logger.error(
+                        f"Error updating Windows shortcut icon after {attempt + 1} attempts: {e}"
+                    )
                     if is_access_denied:
-                        logger.error(f"File may be locked by Windows Explorer or pinned to taskbar/start menu: {shortcut_path}")
+                        logger.error(
+                            f"File may be locked by Windows Explorer or pinned to taskbar/start menu: {shortcut_path}"
+                        )
                     return False
 
         return False
@@ -130,19 +141,19 @@ class LinuxHandler:
         """Extract information from a Linux .desktop file"""
         try:
             config = configparser.ConfigParser()
-            config.read(shortcut_path, encoding='utf-8')
+            config.read(shortcut_path, encoding="utf-8")
 
-            if config.has_section('Desktop Entry'):
+            if config.has_section("Desktop Entry"):
                 # Get target executable
-                if config.has_option('Desktop Entry', 'Exec'):
-                    exec_cmd = config.get('Desktop Entry', 'Exec')
+                if config.has_option("Desktop Entry", "Exec"):
+                    exec_cmd = config.get("Desktop Entry", "Exec")
                     # Remove arguments and field codes
                     exec_cmd = exec_cmd.split()[0] if exec_cmd else None
-                    item['target'] = exec_cmd
+                    item["target"] = exec_cmd
 
                 # Get icon path
-                if config.has_option('Desktop Entry', 'Icon'):
-                    item['icon_path'] = config.get('Desktop Entry', 'Icon')
+                if config.has_option("Desktop Entry", "Icon"):
+                    item["icon_path"] = config.get("Desktop Entry", "Icon")
 
                 logger.debug(f"Desktop entry target: {item['target']}")
                 logger.debug(f"Desktop entry icon: {item['icon_path']}")
@@ -157,22 +168,23 @@ class LinuxHandler:
         """
         try:
             config = configparser.ConfigParser()
-            config.read(shortcut_path, encoding='utf-8')
+            config.read(shortcut_path, encoding="utf-8")
 
             # Ensure Desktop Entry section exists
-            if not config.has_section('Desktop Entry'):
+            if not config.has_section("Desktop Entry"):
                 logger.error(f"Invalid .desktop file: {shortcut_path}")
                 return False
 
             # Linux uses PNG files - convert ICO to PNG if needed
-            png_path = icon_path.with_suffix('.png')
+            png_path = icon_path.with_suffix(".png")
 
-            if icon_path.suffix == '.ico' and not png_path.exists():
+            if icon_path.suffix == ".ico" and not png_path.exists():
                 try:
                     from PIL import Image
+
                     with Image.open(icon_path) as img:
                         # Save the largest size from ICO
-                        img.save(png_path, 'PNG')
+                        img.save(png_path, "PNG")
                     logger.info(f"Converted {icon_path} to {png_path}")
                 except Exception as e:
                     logger.error(f"Failed to convert icon: {e}")
@@ -181,10 +193,10 @@ class LinuxHandler:
             # Use the PNG path for Linux
             final_icon_path = png_path if png_path.exists() else icon_path
 
-            config.set('Desktop Entry', 'Icon', str(final_icon_path))
+            config.set("Desktop Entry", "Icon", str(final_icon_path))
 
             # Write back to file
-            with open(shortcut_path, 'w', encoding='utf-8') as f:
+            with open(shortcut_path, "w", encoding="utf-8") as f:
                 config.write(f, space_around_delimiters=False)
 
             logger.info(f"Updated Linux .desktop icon: {shortcut_path}")

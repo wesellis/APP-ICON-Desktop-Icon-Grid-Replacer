@@ -3,12 +3,12 @@ Icon Cache Manager
 Handles clearing and refreshing icon caches on Windows and Linux
 """
 
-import sys
 import logging
 import subprocess
+import sys
 import time
 
-logger = logging.getLogger('ICON.Cache')
+logger = logging.getLogger("ICON.Cache")
 
 
 class IconCacheManager:
@@ -16,9 +16,9 @@ class IconCacheManager:
 
     def __init__(self):
         """Initialize cache manager for current platform"""
-        if sys.platform == 'win32':
+        if sys.platform == "win32":
             self.backend = WindowsIconCache()
-        elif sys.platform.startswith('linux'):
+        elif sys.platform.startswith("linux"):
             self.backend = LinuxIconCache()
         else:
             logger.warning(f"Icon cache management not implemented for {sys.platform}")
@@ -42,8 +42,8 @@ class WindowsIconCache:
             print("  [*] Clearing Windows icon cache...")
 
             # Clear icon cache
-            subprocess.run(['ie4uinit.exe', '-show'], capture_output=True)
-            subprocess.run(['ie4uinit.exe', '-ClearIconCache'], capture_output=True)
+            subprocess.run(["ie4uinit.exe", "-show"], capture_output=True)
+            subprocess.run(["ie4uinit.exe", "-ClearIconCache"], capture_output=True)
             time.sleep(1)
 
             print("  [+] Icon cache cleared")
@@ -57,24 +57,22 @@ class WindowsIconCache:
         try:
             # Clear icon cache
             print("  [*] Clearing Windows icon cache...")
-            subprocess.run(['ie4uinit.exe', '-show'], capture_output=True)
-            subprocess.run(['ie4uinit.exe', '-ClearIconCache'], capture_output=True)
+            subprocess.run(["ie4uinit.exe", "-show"], capture_output=True)
+            subprocess.run(["ie4uinit.exe", "-ClearIconCache"], capture_output=True)
             time.sleep(1)
 
             # Restart Explorer
             print("  [*] Restarting Windows Explorer...")
             subprocess.run(
-                ['powershell', '-Command', 'Stop-Process -Name explorer -Force'],
+                ["powershell", "-Command", "Stop-Process -Name explorer -Force"],
                 capture_output=True,
-                timeout=5
+                timeout=5,
             )
 
             time.sleep(2)
 
             subprocess.run(
-                ['powershell', '-Command', 'Start-Process explorer'],
-                capture_output=True,
-                timeout=5
+                ["powershell", "-Command", "Start-Process explorer"], capture_output=True, timeout=5
             )
 
             print("  [+] Icon cache cleared and Explorer restarted!")
@@ -98,21 +96,21 @@ class LinuxIconCache:
             # Try GTK icon cache
             try:
                 subprocess.run(
-                    ['gtk-update-icon-cache', '-f', '-t', '~/.icons'],
+                    ["gtk-update-icon-cache", "-f", "-t", "~/.icons"],
                     capture_output=True,
-                    timeout=5
+                    timeout=5,
                 )
             except (FileNotFoundError, subprocess.SubprocessError):
                 pass
 
             # Try clearing XDG cache
             try:
-                from pathlib import Path
                 import shutil
+                from pathlib import Path
 
                 cache_dirs = [
-                    Path.home() / '.cache' / 'icon-theme.cache',
-                    Path.home() / '.cache' / 'thumbnails'
+                    Path.home() / ".cache" / "icon-theme.cache",
+                    Path.home() / ".cache" / "thumbnails",
                 ]
 
                 for cache_dir in cache_dirs:

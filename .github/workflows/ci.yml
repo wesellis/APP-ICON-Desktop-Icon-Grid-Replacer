@@ -47,7 +47,7 @@ jobs:
 
     - name: Type check with mypy
       run: |
-        pip install mypy types-aiohttp types-Pillow
+        pip install mypy
         mypy src/ --ignore-missing-imports || true
 
     - name: Run tests with pytest

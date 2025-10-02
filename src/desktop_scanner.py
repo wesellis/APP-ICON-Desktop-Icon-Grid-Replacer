@@ -3,15 +3,16 @@ Desktop Scanner
 Scan desktop for shortcuts and executables
 """
 
+import logging
 import os
 import re
 import sys
 from pathlib import Path
-from typing import List, Dict
-import logging
+from typing import Dict, List
+
 from platform_handler import PlatformHandler
 
-logger = logging.getLogger('ICON.Scanner')
+logger = logging.getLogger("ICON.Scanner")
 
 
 class DesktopScanner:
@@ -19,10 +20,10 @@ class DesktopScanner:
 
     def __init__(self):
         # Platform-specific supported types
-        if sys.platform == 'win32':
-            self.supported_types = ['.lnk', '.exe', '.url']
-        elif sys.platform.startswith('linux'):
-            self.supported_types = ['.desktop']
+        if sys.platform == "win32":
+            self.supported_types = [".lnk", ".exe", ".url"]
+        elif sys.platform.startswith("linux"):
+            self.supported_types = [".desktop"]
         else:
             self.supported_types = []
 
@@ -31,7 +32,7 @@ class DesktopScanner:
     def scan_desktop(self, desktop_path: str = None) -> List[Dict]:
         """Scan desktop for shortcuts and executables"""
         if desktop_path is None:
-            desktop_path = str(Path.home() / 'Desktop')
+            desktop_path = str(Path.home() / "Desktop")
 
         desktop = Path(desktop_path)
         if not desktop.exists():
@@ -53,25 +54,25 @@ class DesktopScanner:
     def _analyze_item(self, file_path: Path) -> Dict:
         """Analyze a desktop item and extract information"""
         item = {
-            'path': str(file_path),
-            'filename': file_path.name,
-            'name': file_path.stem,
-            'type': file_path.suffix.lower(),
-            'target': None,
-            'icon_path': None,
-            'icon_index': 0
+            "path": str(file_path),
+            "filename": file_path.name,
+            "name": file_path.stem,
+            "type": file_path.suffix.lower(),
+            "target": None,
+            "icon_path": None,
+            "icon_index": 0,
         }
 
         # Extract clean name (remove common suffixes)
-        clean_name = self._clean_name(item['name'])
-        item['clean_name'] = clean_name
+        clean_name = self._clean_name(item["name"])
+        item["clean_name"] = clean_name
 
         # Get additional info based on type
-        if item['type'] == '.lnk':
+        if item["type"] == ".lnk":
             self._analyze_shortcut(file_path, item)
-        elif item['type'] == '.exe':
-            item['target'] = str(file_path)
-            item['icon_path'] = str(file_path)
+        elif item["type"] == ".exe":
+            item["target"] = str(file_path)
+            item["icon_path"] = str(file_path)
 
         logger.debug(f"Analyzed: {item['name']} -> {item['clean_name']}")
         return item
@@ -87,17 +88,17 @@ class DesktopScanner:
         """Clean up name for better search results"""
         # Remove common patterns
         patterns = [
-            r'\s*-\s*Shortcut.*$',  # Remove "- Shortcut"
-            r'\s*\(.*?\)\s*',        # Remove parentheses content
-            r'\s*\[.*?\]\s*',        # Remove bracket content
+            r"\s*-\s*Shortcut.*$",  # Remove "- Shortcut"
+            r"\s*\(.*?\)\s*",  # Remove parentheses content
+            r"\s*\[.*?\]\s*",  # Remove bracket content
             # r'\s+\d+$',            # DISABLED: Don't remove trailing numbers (breaks sequels like "Game 2")
-            r'\.exe$',               # Remove .exe extension
-            r'^Steam\s*-\s*',        # Remove "Steam - " prefix
+            r"\.exe$",  # Remove .exe extension
+            r"^Steam\s*-\s*",  # Remove "Steam - " prefix
         ]
 
         clean = name
         for pattern in patterns:
-            clean = re.sub(pattern, '', clean, flags=re.IGNORECASE)
+            clean = re.sub(pattern, "", clean, flags=re.IGNORECASE)
 
         # Trim whitespace
         clean = clean.strip()
@@ -111,9 +112,9 @@ class DesktopScanner:
     def get_icon_path(self, item: Dict) -> str:
         """Get the icon path for an item"""
         # Priority: explicit icon_path > target > file path
-        if item.get('icon_path'):
-            return item['icon_path']
-        elif item.get('target'):
-            return item['target']
+        if item.get("icon_path"):
+            return item["icon_path"]
+        elif item.get("target"):
+            return item["target"]
         else:
-            return item['path']
+            return item["path"]

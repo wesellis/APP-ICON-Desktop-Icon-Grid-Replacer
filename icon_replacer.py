@@ -11,34 +11,33 @@ Automatically scans your desktop for shortcuts and replaces their icons
 with beautiful 512x512 or 1024x1024 grid artwork from SteamGridDB.
 """
 
-import sys
-import os
 import argparse
 import asyncio
+import json
 import logging
+import os
+import sys
 from pathlib import Path
 from typing import Optional
-import json
 
 # Add src to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
+
 
 # Configure logging
 def setup_logging():
     """Setup logging to ~/.icon_replacer/ directory"""
-    log_dir = Path.home() / '.icon_replacer'
+    log_dir = Path.home() / ".icon_replacer"
     log_dir.mkdir(parents=True, exist_ok=True)
-    log_file = log_dir / 'icon_replacer.log'
+    log_file = log_dir / "icon_replacer.log"
 
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.FileHandler(log_file),
-            logging.StreamHandler()
-        ]
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        handlers=[logging.FileHandler(log_file), logging.StreamHandler()],
     )
-    return logging.getLogger('ICON')
+    return logging.getLogger("ICON")
+
 
 logger = setup_logging()
 
@@ -56,7 +55,7 @@ class IconReplacer:
 
     def __init__(self, config_path: Optional[Path] = None):
         """Initialize Icon Replacer application"""
-        self.config_path = config_path or Path.home() / '.icon_replacer' / 'config.json'
+        self.config_path = config_path or Path.home() / ".icon_replacer" / "config.json"
         self.config = self.load_config()
         self.api = None
 
@@ -64,7 +63,7 @@ class IconReplacer:
         """Load configuration from file"""
         if self.config_path.exists():
             try:
-                with open(self.config_path, 'r') as f:
+                with open(self.config_path, "r") as f:
                     return json.load(f)
             except Exception as e:
                 logger.warning(f"Failed to load config: {e}")
@@ -74,7 +73,7 @@ class IconReplacer:
         """Save configuration to file"""
         self.config_path.parent.mkdir(parents=True, exist_ok=True)
         try:
-            with open(self.config_path, 'w') as f:
+            with open(self.config_path, "w") as f:
                 json.dump(self.config, f, indent=2)
             logger.info("Configuration saved")
         except Exception as e:
@@ -100,7 +99,7 @@ class IconReplacer:
             return
 
         # Check for API key
-        if not args.api_key and not self.config.get('api_key'):
+        if not args.api_key and not self.config.get("api_key"):
             print("\nError: SteamGridDB API key required!")
             print("Get your API key from: https://www.steamgriddb.com/profile/preferences/api")
             print("\nUsage: icon_replacer --api-key YOUR_KEY")
@@ -109,13 +108,13 @@ class IconReplacer:
             input("\nPress Enter to exit...")
             sys.exit(1)
 
-        api_key = args.api_key or self.config['api_key']
+        api_key = args.api_key or self.config["api_key"]
 
         # Import required components
         try:
-            from steamgrid_api import SteamGridAPI
             from desktop_scanner import DesktopScanner
             from icon_updater import IconUpdater
+            from steamgrid_api import SteamGridAPI
 
             # Use async context manager for API
             async with SteamGridAPI(api_key) as api:
@@ -142,16 +141,14 @@ class IconReplacer:
                             print(f"  {i}. {item['name']} ({item['type']})")
                         except UnicodeEncodeError:
                             # Handle special characters that can't be encoded
-                            safe_name = item['name'].encode('ascii', 'replace').decode('ascii')
+                            safe_name = item["name"].encode("ascii", "replace").decode("ascii")
                             print(f"  {i}. {safe_name} ({item['type']})")
                     return
 
                 # Process items
                 print(f"\n[*] Fetching and replacing icons...")
                 results = await updater.process_items(
-                    desktop_items,
-                    auto_apply=args.auto,
-                    backup=args.backup
+                    desktop_items, auto_apply=args.auto, backup=args.backup
                 )
 
                 # Show results
@@ -160,7 +157,7 @@ class IconReplacer:
                 print(f"  Failed: {results['failed']}")
                 print(f"  Skipped: {results['skipped']}")
 
-                if results['backup_path']:
+                if results["backup_path"]:
                     print(f"\n[*] Backup created at: {results['backup_path']}")
 
         except ImportError as e:
@@ -185,12 +182,13 @@ class IconReplacer:
 
         response = input("Do you want to proceed? (yes/no): ").strip().lower()
 
-        if response != 'yes':
+        if response != "yes":
             print("  Cancelled.")
             return
 
         try:
             from overlay_remover import OverlayRemover
+
             remover = OverlayRemover()
 
             print("\n[*] Removing overlays...")
@@ -212,6 +210,7 @@ class IconReplacer:
 
         try:
             from overlay_remover import OverlayRemover
+
             remover = OverlayRemover()
 
             if remover.restore_overlays():
@@ -231,15 +230,17 @@ class IconReplacer:
         try:
             from icon_updater import IconUpdater
 
-            backup_dir = Path.home() / '.icon_replacer' / 'backups'
+            backup_dir = Path.home() / ".icon_replacer" / "backups"
 
             # If backup_path_arg is "latest", find the most recent backup
-            if backup_path_arg.lower() == 'latest':
+            if backup_path_arg.lower() == "latest":
                 if not backup_dir.exists():
                     print("\n[-] No backups found!")
                     return
 
-                backups = sorted(backup_dir.glob('backup_*.json'), key=lambda p: p.stat().st_mtime, reverse=True)
+                backups = sorted(
+                    backup_dir.glob("backup_*.json"), key=lambda p: p.stat().st_mtime, reverse=True
+                )
                 if not backups:
                     print("\n[-] No backups found!")
                     return
@@ -305,17 +306,17 @@ class IconReplacer:
 
         # Save configuration
         self.config = {
-            'api_key': api_key,
-            'icon_size': int(size),
-            'auto_backup': auto_backup == 'y',
-            'icons_dir': str(Path.home() / '.icon_replacer' / 'icons')
+            "api_key": api_key,
+            "icon_size": int(size),
+            "auto_backup": auto_backup == "y",
+            "icons_dir": str(Path.home() / ".icon_replacer" / "icons"),
         }
         self.save_config()
 
         print("\n[+] Setup complete! Configuration saved.")
 
         # Handle overlay removal if requested
-        if remove_overlays == 'yes':
+        if remove_overlays == "yes":
             print("\n")
             self.remove_overlays()
 
@@ -331,7 +332,7 @@ class IconReplacer:
 def main():
     """Main entry point"""
     parser = argparse.ArgumentParser(
-        description='ICON - Desktop Icon Grid Replacer',
+        description="ICON - Desktop Icon Grid Replacer",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -345,35 +346,44 @@ Examples:
   icon_replacer --api-key YOUR_KEY --size 1024
 
 For more information: https://github.com/wesellis/icon-replacer
-        """
+        """,
     )
 
     # Mode
-    parser.add_argument('--setup', action='store_true', help='Run setup wizard')
-    parser.add_argument('--list', action='store_true', help='List desktop items only')
-    parser.add_argument('--restore', metavar='BACKUP', help='Restore icons from backup file')
-    parser.add_argument('--remove-overlays', action='store_true',
-                       help='Remove UAC shields and shortcut arrows')
-    parser.add_argument('--restore-overlays', action='store_true',
-                       help='Restore default UAC/shortcut overlays')
+    parser.add_argument("--setup", action="store_true", help="Run setup wizard")
+    parser.add_argument("--list", action="store_true", help="List desktop items only")
+    parser.add_argument("--restore", metavar="BACKUP", help="Restore icons from backup file")
+    parser.add_argument(
+        "--remove-overlays", action="store_true", help="Remove UAC shields and shortcut arrows"
+    )
+    parser.add_argument(
+        "--restore-overlays", action="store_true", help="Restore default UAC/shortcut overlays"
+    )
 
     # Authentication
-    parser.add_argument('--api-key', help='SteamGridDB API key')
+    parser.add_argument("--api-key", help="SteamGridDB API key")
 
     # Options
-    parser.add_argument('--size', type=int, choices=[512, 1024], default=1024,
-                       help='Icon size (512 or 1024, default: 1024)')
-    parser.add_argument('--desktop-path',
-                       default=str(Path.home() / 'Desktop'),
-                       help='Desktop path (default: ~/Desktop)')
-    parser.add_argument('--auto', action='store_true',
-                       help='Auto-apply without confirmation')
-    parser.add_argument('--no-backup', dest='backup', action='store_false',
-                       help='Skip backup creation')
-    parser.add_argument('--force', action='store_true',
-                       help='Force re-download even if icon exists')
-    parser.add_argument('--verbose', '-v', action='store_true',
-                       help='Verbose output')
+    parser.add_argument(
+        "--size",
+        type=int,
+        choices=[512, 1024],
+        default=1024,
+        help="Icon size (512 or 1024, default: 1024)",
+    )
+    parser.add_argument(
+        "--desktop-path",
+        default=str(Path.home() / "Desktop"),
+        help="Desktop path (default: ~/Desktop)",
+    )
+    parser.add_argument("--auto", action="store_true", help="Auto-apply without confirmation")
+    parser.add_argument(
+        "--no-backup", dest="backup", action="store_false", help="Skip backup creation"
+    )
+    parser.add_argument(
+        "--force", action="store_true", help="Force re-download even if icon exists"
+    )
+    parser.add_argument("--verbose", "-v", action="store_true", help="Verbose output")
 
     args = parser.parse_args()
 
@@ -391,5 +401,5 @@ For more information: https://github.com/wesellis/icon-replacer
         asyncio.run(app.run(args))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
