@@ -7,8 +7,8 @@ A tool to replace desktop icons with 1:1 grid artwork from SteamGridDB.
 [![Platform](https://img.shields.io/badge/Platform-Windows%20|%20Linux-lightgrey?style=flat-square)](README.md)
 [![Tests](https://img.shields.io/badge/Tests-Passing-brightgreen?style=flat-square)](README.md)
 [![Coverage](https://img.shields.io/badge/Coverage-80%25+-brightgreen?style=flat-square)](README.md)
-[![Stars](https://img.shields.io/github/stars/wesellis/APP-ICON-Desktop-Icon-Grid-Replacer?style=flat-square)](https://github.com/wesellis/APP-ICON-Desktop-Icon-Grid-Replacer/stargazers)
-[![Last Commit](https://img.shields.io/github/last-commit/wesellis/APP-ICON-Desktop-Icon-Grid-Replacer?style=flat-square)](https://github.com/wesellis/APP-ICON-Desktop-Icon-Grid-Replacer/commits)
+[![Stars](https://img.shields.io/github/stars/wesellis/desktop-icon-grid?style=flat-square)](https://github.com/wesellis/desktop-icon-grid/stargazers)
+[![Last Commit](https://img.shields.io/github/last-commit/wesellis/desktop-icon-grid?style=flat-square)](https://github.com/wesellis/desktop-icon-grid/commits)
 
 ICON scans your Windows or Linux desktop for shortcuts, searches for matching artwork on SteamGridDB, and replaces the icons with 512x512 or 1024x1024 square grid images.
 
@@ -37,7 +37,7 @@ ICON scans your Windows or Linux desktop for shortcuts, searches for matching ar
 
 ### Windows Standalone (Easiest - No Python Required)
 
-1. **Download** `ICON.exe` and `ICON_Launcher.bat` from [Releases](https://github.com/wesellis/APP-ICON-Desktop-Icon-Grid-Replacer/releases)
+1. **Download** `ICON.exe` and `ICON_Launcher.bat` from [Releases](https://github.com/wesellis/desktop-icon-grid/releases)
 2. **Double-click** `ICON_Launcher.bat` to launch the interactive menu
 3. **Choose option 1** to run setup wizard
 4. **Get API Key** from https://www.steamgriddb.com/profile/preferences/api and paste it
@@ -58,8 +58,8 @@ The standalone .exe includes all dependencies and works on Windows 10+.
 
 ```bash
 # Clone the repository
-git clone https://github.com/wesellis/APP-ICON-Desktop-Icon-Grid-Replacer.git
-cd APP-ICON-Desktop-Icon-Grid-Replacer
+git clone https://github.com/wesellis/desktop-icon-grid.git
+cd desktop-icon-grid
 
 # Install with pip (includes all dependencies)
 pip install -e .
@@ -72,8 +72,8 @@ pip install -e ".[dev]"
 
 1. Clone or download this repository:
 ```bash
-git clone https://github.com/wesellis/icon-replacer.git
-cd icon-replacer
+git clone https://github.com/wesellis/desktop-icon-grid.git
+cd desktop-icon-grid
 ```
 
 2. Install dependencies:
@@ -264,7 +264,7 @@ If you hit rate limits, wait a few minutes before trying again.
 ## Project Structure
 
 ```
-APP-ICON-Desktop-Icon-Grid-Replacer/
+desktop-icon-grid/
 ├── icon_replacer.py          # Main application
 ├── requirements.txt          # Python dependencies
 ├── README.md                 # This file
@@ -356,95 +356,3 @@ MIT License - see LICENSE file for details
 ## Disclaimer
 
 This tool modifies Windows shortcuts on your desktop. While it creates backups automatically, use at your own risk. Always ensure you have backups of important data.
-
----
-
-## Project Status & Roadmap
-
-**Completion: 100%** - Production Ready
-
-### What Works
-
-**Core Features:**
-- ✅ Desktop scanning (Windows .lnk and Linux .desktop files)
-- ✅ SteamGridDB API integration with caching
-- ✅ Async icon downloads with aiohttp
-- ✅ Icon conversion to .ico format (multiple resolutions)
-- ✅ Shortcut icon replacement
-- ✅ **Automatic backup creation**
-- ✅ **One-click restore** (`--restore latest` or specify backup file)
-- ✅ Cross-platform support (Windows and Linux)
-- ✅ UAC shield and shortcut arrow overlay removal (Windows)
-- ✅ Test suite with pytest (80%+ coverage)
-- ✅ CI/CD with GitHub Actions
-- ✅ Proper packaging (setup.py, pyproject.toml)
-- ✅ Command-line interface with multiple options
-- ✅ Configuration management
-- ✅ Error handling and logging
-- ✅ Modular architecture (well-organized source files)
-
-### Platform-Specific Features
-
-**Windows:**
-- ✅ .lnk shortcut icon replacement
-- ✅ UAC shield overlay removal/restoration
-- ✅ Shortcut arrow removal/restoration
-- ✅ Multi-resolution .ico generation (16x16 to 256x256)
-- ✅ COM-based shortcut manipulation
-
-**Linux:**
-- ✅ .desktop file icon replacement
-- ✅ XDG desktop entry standard compliance
-- ✅ PNG/SVG icon support
-- ✅ Automatic desktop refresh
-
-### Known Limitations
-
-**Platform Limitations (Not Fixable):**
-- ⚠️ **.exe Icon Replacement**: Cannot replace embedded icons in executables (requires recompiling)
-- ⚠️ **.url File Support**: Limited icon support for internet shortcuts
-
-**Optional Enhancements (Nice-to-Have):**
-- GUI interface (currently command-line only)
-- Icon preview before applying
-- Custom icon upload support
-- Folder icon replacement
-
-### Linux Usage Examples
-
-**Basic usage on Linux:**
-```bash
-# Run ICON on Linux
-python3 icon_replacer.py
-
-# Auto-apply all icons
-python3 icon_replacer.py --auto
-
-# Restore from latest backup
-python3 icon_replacer.py --restore latest
-
-# List desktop items
-python3 icon_replacer.py --list
-```
-
-**Linux .desktop file locations:**
-- User desktop: `~/Desktop/`
-- System applications: `/usr/share/applications/`
-- User applications: `~/.local/share/applications/`
-
-### Current Status
-
-This project is **production-ready and feature-complete**. All core functionality works reliably:
-- Automatic icon replacement with SteamGridDB artwork
-- Cross-platform support (Windows and Linux)
-- Full backup and restore functionality
-- Comprehensive error handling and logging
-- Well-tested codebase (80%+ coverage)
-
-The tool does exactly what it claims with no critical missing features. Optional enhancements like GUI and preview are nice-to-have but not essential for core functionality.
-
----
-
-**Created by Wesley Ellis**
-
-Found a bug? Have a feature request? Open an issue on GitHub!
